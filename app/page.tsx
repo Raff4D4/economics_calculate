@@ -2,38 +2,34 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Wallet,
-  TrendingUp,
+  Calculator,
+  Building2,
+  Coins,
   BookOpen,
-  TerminalSquare,
   History,
   Trash2,
   X,
-  Calculator,
 } from "lucide-react";
-import { AppTab, CalculationHistoryItem } from "@/lib/types";
+import { AppTab, CalculationHistoryItem, EconomicPreset } from "@/lib/types";
+import { ECONOMIC_PRESETS } from "@/lib/engine/presets";
 import {
   getSavedHistory,
   saveHistoryItem,
   clearSavedHistory,
 } from "@/lib/storage";
-import { LedgerModule } from "@/components/modules/LedgerModule";
-import { InvestModule } from "@/components/modules/InvestModule";
-import { PresetModule } from "@/components/modules/PresetModule";
-import { SandboxModule } from "@/components/modules/SandboxModule";
+import { ScientificSlotModule } from "@/components/modules/ScientificSlotModule";
+import { PrivateValuationModule } from "@/components/modules/PrivateValuationModule";
+import { SimpleCapitalCompoundModule } from "@/components/modules/SimpleCapitalCompoundModule";
+import { PresetExplorerModule } from "@/components/modules/PresetExplorerModule";
 import { NeoButton } from "@/components/ui/NeoButton";
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState<AppTab>("ledger");
+  const [activeTab, setActiveTab] = useState<AppTab>("scientific");
+  const [selectedPreset, setSelectedPreset] = useState<EconomicPreset>(
+    ECONOMIC_PRESETS[0]
+  );
   const [history, setHistory] = useState<CalculationHistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
-  const [sandboxBridge, setSandboxBridge] = useState<{
-    formula: string;
-    values: Record<string, number>;
-  }>({
-    formula: "M = i * (P - 1)",
-    values: { i: 0.12, P: 5000000 },
-  });
 
   useEffect(() => {
     setHistory(getSavedHistory());
@@ -42,8 +38,7 @@ export default function HomePage() {
   const handleSaveHistory = (
     item: Omit<CalculationHistoryItem, "id" | "timestamp">
   ) => {
-    const updated = saveHistoryItem(item);
-    setHistory(updated);
+    setHistory(saveHistoryItem(item));
   };
 
   const handleClearHistory = () => {
@@ -51,32 +46,29 @@ export default function HomePage() {
     setHistory([]);
   };
 
-  const handleOpenInSandbox = (
-    formula: string,
-    values: Record<string, number>
-  ) => {
-    setSandboxBridge({ formula, values });
-    setActiveTab("sandbox");
+  const handlePickPreset = (preset: EconomicPreset) => {
+    setSelectedPreset(preset);
+    setActiveTab("scientific");
   };
 
   return (
-    <div className="min-h-screen max-w-md mx-auto bg-neo-bg border-x-3 border-neo-black shadow-neo-lg flex flex-col justify-between pb-24 relative">
-      <header className="sticky top-0 z-30 bg-neo-yellow border-b-3 border-neo-black px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen max-w-lg mx-auto bg-neo-bg border-x-2 border-neo-black shadow-neo-lg flex flex-col justify-between pb-24 relative">
+      <header className="sticky top-0 z-30 bg-neo-surface border-b-2 border-neo-black px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 bg-neo-surface border-3 border-neo-black shadow-neo-sm flex items-center justify-center">
+          <div className="w-10 h-10 bg-neo-yellow border-2 border-neo-black rounded-xl shadow-neo-sm flex items-center justify-center">
             <Calculator className="w-5 h-5 stroke-[2.5]" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <h1 className="font-bold text-lg tracking-tight leading-none">
+              <h1 className="font-bold text-base sm:text-lg tracking-tight leading-none">
                 ECONOBRUTAL
               </h1>
-              <span className="bg-neo-mint border-2 border-neo-black px-1.5 py-0.5 text-[10px] font-mono font-bold">
-                PRO
+              <span className="bg-neo-mint border border-neo-black rounded px-1.5 py-0.5 text-[10px] font-mono font-bold">
+                V2 RAMAH PEMULA
               </span>
             </div>
-            <p className="text-[11px] font-mono font-bold text-neo-black/80 mt-0.5">
-              OS Kalkulator Ekonomi & Rumus Dinamis
+            <p className="text-[11px] font-medium text-neo-muted mt-0.5">
+              Ketik 20jt, 10%, 10thn Langsung di Rumus
             </p>
           </div>
         </div>
@@ -84,92 +76,71 @@ export default function HomePage() {
         <button
           type="button"
           onClick={() => setShowHistory(true)}
-          className="min-h-[42px] bg-neo-surface border-3 border-neo-black px-3 py-1.5 shadow-neo-sm font-mono text-xs font-bold flex items-center gap-1.5 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+          className="min-h-[40px] bg-neo-bg border-2 border-neo-black rounded-lg px-3 py-1.5 shadow-neo-sm font-mono text-xs font-bold flex items-center gap-1.5"
         >
-          <History className="w-4 h-4 stroke-[2.5]" />
+          <History className="w-4 h-4" />
           <span>{history.length}</span>
         </button>
       </header>
 
       <main className="p-4 flex-1">
-        {activeTab === "ledger" && (
-          <LedgerModule onSaveHistory={handleSaveHistory} />
+        {activeTab === "scientific" && (
+          <ScientificSlotModule
+            selectedPreset={selectedPreset}
+            onSelectPreset={setSelectedPreset}
+            onSaveHistory={handleSaveHistory}
+          />
         )}
-        {activeTab === "invest" && (
-          <InvestModule onSaveHistory={handleSaveHistory} />
+        {activeTab === "valuation" && (
+          <PrivateValuationModule onSaveHistory={handleSaveHistory} />
+        )}
+        {activeTab === "capital" && (
+          <SimpleCapitalCompoundModule onSaveHistory={handleSaveHistory} />
         )}
         {activeTab === "presets" && (
-          <PresetModule
-            onOpenInSandbox={handleOpenInSandbox}
-            onSaveHistory={handleSaveHistory}
-          />
-        )}
-        {activeTab === "sandbox" && (
-          <SandboxModule
-            initialFormula={sandboxBridge.formula}
-            initialValues={sandboxBridge.values}
-            onSaveHistory={handleSaveHistory}
-          />
+          <PresetExplorerModule onPickPreset={handlePickPreset} />
         )}
       </main>
 
       {showHistory && (
-        <div className="fixed inset-0 z-50 bg-neo-black/60 flex items-end justify-center">
-          <div className="w-full max-w-md max-h-[82vh] bg-neo-bg border-t-3 border-x-3 border-neo-black p-4 flex flex-col space-y-3">
-            <div className="flex items-center justify-between border-b-3 border-neo-black pb-2.5">
-              <h2 className="font-bold text-base uppercase">
-                Riwayat Perhitungan ({history.length})
+        <div className="fixed inset-0 z-50 bg-neo-black/50 flex items-end justify-center">
+          <div className="w-full max-w-lg max-h-[80vh] bg-neo-bg border-t-2 border-x-2 border-neo-black rounded-t-2xl p-4 flex flex-col space-y-3">
+            <div className="flex items-center justify-between border-b-2 border-neo-black pb-2.5">
+              <h2 className="font-bold text-sm uppercase">
+                Riwayat Hitungan Tersimpan ({history.length})
               </h2>
               <button
                 type="button"
                 onClick={() => setShowHistory(false)}
-                className="p-1.5 bg-neo-coral border-2 border-neo-black shadow-neo-sm"
+                className="p-1.5 bg-neo-coral border-2 border-neo-black rounded-lg"
               >
-                <X className="w-4 h-4 stroke-[3]" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1">
               {history.length === 0 ? (
-                <div className="bg-neo-surface border-2 border-neo-black p-6 text-center font-mono text-xs font-bold">
+                <div className="bg-neo-surface border-2 border-neo-black rounded-xl p-6 text-center font-mono text-xs font-bold">
                   Belum ada riwayat perhitungan yang disimpan.
                 </div>
               ) : (
                 history.map((item) => (
                   <div
                     key={item.id}
-                    className="bg-neo-surface border-2 border-neo-black p-3 shadow-neo-sm space-y-1 font-mono text-xs"
+                    className="bg-neo-surface border-2 border-neo-black rounded-xl p-3 shadow-neo-sm space-y-1 font-mono text-xs"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-neo-black uppercase">
-                        {item.title}
-                      </span>
-                      <span className="text-[10px] bg-neo-yellow border border-neo-black px-1.5 py-0.5 font-bold">
+                      <span className="font-bold">{item.title}</span>
+                      <span className="text-[10px] bg-neo-yellow border border-neo-black rounded px-1.5 py-0.5">
                         {item.timestamp}
                       </span>
                     </div>
-                    <p className="text-[11px] text-neo-black/75 break-all">
+                    <p className="text-[11px] text-neo-muted break-all">
                       {item.substituted}
                     </p>
-                    <div className="flex items-center justify-between pt-1">
-                      <span className="font-bold text-sm bg-neo-mint border border-neo-black px-2 py-0.5">
-                        {item.resultFormatted}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSandboxBridge({
-                            formula: item.formula,
-                            values: item.variables,
-                          });
-                          setActiveTab("sandbox");
-                          setShowHistory(false);
-                        }}
-                        className="text-[11px] font-bold underline"
-                      >
-                        Buka di Sandbox
-                      </button>
-                    </div>
+                    <p className="font-bold text-sm bg-neo-mint/60 border border-neo-black rounded px-2 py-1 inline-block">
+                      {item.resultFormatted}
+                    </p>
                   </div>
                 ))
               )}
@@ -190,49 +161,49 @@ export default function HomePage() {
         </div>
       )}
 
-      <nav className="fixed bottom-0 left-0 right-0 z-40 max-w-md mx-auto bg-neo-surface border-t-3 border-x-3 border-neo-black grid grid-cols-4">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 max-w-lg mx-auto bg-neo-surface border-t-2 border-x-2 border-neo-black grid grid-cols-4">
         <button
           type="button"
-          onClick={() => setActiveTab("ledger")}
-          className={`min-h-[62px] flex flex-col items-center justify-center gap-1 border-r-2 border-neo-black font-bold text-[11px] transition-colors ${
-            activeTab === "ledger" ? "bg-neo-mint" : "bg-neo-surface"
+          onClick={() => setActiveTab("scientific")}
+          className={`min-h-[62px] flex flex-col items-center justify-center gap-1 border-r border-neo-black/20 font-bold text-[11px] transition-colors ${
+            activeTab === "scientific" ? "bg-neo-yellow" : "bg-neo-surface"
           }`}
         >
-          <Wallet className="w-5 h-5 stroke-[2.5]" />
-          <span>Margin Kas</span>
+          <Calculator className="w-5 h-5 stroke-[2.2]" />
+          <span>Rumus Interaktif</span>
         </button>
 
         <button
           type="button"
-          onClick={() => setActiveTab("invest")}
-          className={`min-h-[62px] flex flex-col items-center justify-center gap-1 border-r-2 border-neo-black font-bold text-[11px] transition-colors ${
-            activeTab === "invest" ? "bg-neo-yellow" : "bg-neo-surface"
+          onClick={() => setActiveTab("valuation")}
+          className={`min-h-[62px] flex flex-col items-center justify-center gap-1 border-r border-neo-black/20 font-bold text-[11px] transition-colors ${
+            activeTab === "valuation" ? "bg-neo-sky" : "bg-neo-surface"
           }`}
         >
-          <TrendingUp className="w-5 h-5 stroke-[2.5]" />
-          <span>ROI & Bank</span>
+          <Building2 className="w-5 h-5 stroke-[2.2]" />
+          <span>Valuasi P/E</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("capital")}
+          className={`min-h-[62px] flex flex-col items-center justify-center gap-1 border-r border-neo-black/20 font-bold text-[11px] transition-colors ${
+            activeTab === "capital" ? "bg-neo-mint" : "bg-neo-surface"
+          }`}
+        >
+          <Coins className="w-5 h-5 stroke-[2.2]" />
+          <span>Modal & Bunga</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab("presets")}
-          className={`min-h-[62px] flex flex-col items-center justify-center gap-1 border-r-2 border-neo-black font-bold text-[11px] transition-colors ${
-            activeTab === "presets" ? "bg-neo-sky" : "bg-neo-surface"
-          }`}
-        >
-          <BookOpen className="w-5 h-5 stroke-[2.5]" />
-          <span>Makro Mikro</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("sandbox")}
           className={`min-h-[62px] flex flex-col items-center justify-center gap-1 font-bold text-[11px] transition-colors ${
-            activeTab === "sandbox" ? "bg-neo-lilac" : "bg-neo-surface"
+            activeTab === "presets" ? "bg-neo-lilac" : "bg-neo-surface"
           }`}
         >
-          <TerminalSquare className="w-5 h-5 stroke-[2.5]" />
-          <span>Rumus Bebas</span>
+          <BookOpen className="w-5 h-5 stroke-[2.2]" />
+          <span>18+ Preset</span>
         </button>
       </nav>
     </div>

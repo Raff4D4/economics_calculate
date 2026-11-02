@@ -1,7 +1,7 @@
 import { CalculationHistoryItem, SavedCustomFormula } from "./types";
 
-const HISTORY_KEY = "econobrutal_history_v1";
-const FORMULAS_KEY = "econobrutal_formulas_v1";
+const HISTORY_KEY = "econobrutal_v2_history";
+const FORMULAS_KEY = "econobrutal_v2_formulas";
 
 export function getSavedHistory(): CalculationHistoryItem[] {
   if (typeof window === "undefined") return [];
@@ -28,7 +28,7 @@ export function saveHistoryItem(
       minute: "2-digit",
     }),
   };
-  const updated = [nextItem, ...current].slice(0, 30);
+  const updated = [nextItem, ...current].slice(0, 35);
   try {
     window.localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
   } catch {
@@ -55,18 +55,20 @@ export function getSavedCustomFormulas(): SavedCustomFormula[] {
 export function saveCustomFormula(
   name: string,
   formula: string,
-  defaultValues: Record<string, number>
+  rawInputs: Record<string, string>,
+  targetVariable: string
 ): SavedCustomFormula[] {
   if (typeof window === "undefined") return [];
   const current = getSavedCustomFormulas();
   const nextFormula: SavedCustomFormula = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    name: name.trim() || "Rumus Kustom",
+    name: name.trim() || "Rumus Tersimpan",
     formula: formula.trim(),
-    defaultValues,
+    rawInputs: { ...rawInputs },
+    targetVariable,
     createdAt: new Date().toLocaleDateString("id-ID"),
   };
-  const updated = [nextFormula, ...current].slice(0, 20);
+  const updated = [nextFormula, ...current].slice(0, 25);
   try {
     window.localStorage.setItem(FORMULAS_KEY, JSON.stringify(updated));
   } catch {
@@ -85,4 +87,3 @@ export function deleteCustomFormula(id: string): SavedCustomFormula[] {
   }
   return updated;
 }
-

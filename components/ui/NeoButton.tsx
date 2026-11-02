@@ -25,9 +25,9 @@ const VARIANT_CLASSES: Record<NeoColor, string> = {
 };
 
 const SIZE_CLASSES = {
-  sm: "min-h-[42px] px-3 py-1.5 text-xs",
+  sm: "min-h-[40px] px-3 py-1.5 text-xs",
   md: "min-h-[48px] px-4 py-2.5 text-sm",
-  lg: "min-h-[54px] px-5 py-3 text-base",
+  lg: "min-h-[52px] px-5 py-3 text-base",
 };
 
 export function NeoButton({
@@ -47,10 +47,9 @@ export function NeoButton({
       onClick={onClick}
       className={`${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${
         fullWidth ? "w-full" : ""
-      } font-bold border-3 border-neo-black shadow-neo transition-all duration-75 active:translate-x-[3px] active:translate-y-[3px] active:shadow-none disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 select-none ${className}`}
+      } font-bold border-2 border-neo-black rounded-lg shadow-neo-sm transition-all duration-75 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-1.5 select-none ${className}`}
     >
       {children}
     </button>
   );
 }
-

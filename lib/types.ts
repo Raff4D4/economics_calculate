@@ -1,41 +1,56 @@
-export type AppTab = "ledger" | "invest" | "presets" | "sandbox";
+export type AppTab = "scientific" | "valuation" | "capital" | "presets";
 
-export type NeoColor = "yellow" | "mint" | "coral" | "lilac" | "sky" | "orange" | "white";
+export type NeoColor =
+  | "yellow"
+  | "mint"
+  | "coral"
+  | "lilac"
+  | "sky"
+  | "orange"
+  | "white";
+
+export type PresetCategory =
+  | "Semua"
+  | "Cari Modal & Untung"
+  | "UMKM & F&B"
+  | "Valuasi & Investor"
+  | "Bank & Tabungan"
+  | "Makro & Mikro";
+
+export interface FormulaToken {
+  type: "variable" | "operator" | "text";
+  value: string;
+}
 
 export interface VariableMeta {
   symbol: string;
   label: string;
-  unit?: "Rp" | "%" | "x" | "unit" | "tahun" | "bulan" | "angka";
-  defaultValue: number;
-  min: number;
-  max: number;
-  step: number;
-  description?: string;
+  placeholder: string;
+  defaultRaw: string;
+  unitHint: string;
+  helperText: string;
 }
 
 export interface EconomicPreset {
   id: string;
-  category: "Mikroekonomi" | "Makroekonomi" | "Perbankan";
+  category: Exclude<PresetCategory, "Semua">;
   title: string;
-  shortCode: string;
+  badge: string;
   formula: string;
-  description: string;
-  resultUnit: "Rp" | "%" | "x" | "unit" | "angka";
+  simpleExplanation: string;
+  defaultTarget: string;
   variables: VariableMeta[];
-  interpret: (result: number, vars: Record<string, number>) => {
-    status: string;
-    color: NeoColor;
-    summary: string;
-  };
 }
 
-export interface ParsedFormulaOutput {
+export interface SolvedFormulaOutput {
   isValid: boolean;
   rawFormula: string;
+  lhsVariable: string;
+  rhsExpression: string;
+  allVariables: string[];
   targetVariable: string;
-  expression: string;
-  variables: string[];
-  substitutedExpression: string;
+  numericMap: Record<string, number>;
+  substitutedText: string;
   result: number | null;
   error: string | null;
 }
@@ -56,7 +71,7 @@ export interface SavedCustomFormula {
   id: string;
   name: string;
   formula: string;
-  defaultValues: Record<string, number>;
+  rawInputs: Record<string, string>;
+  targetVariable: string;
   createdAt: string;
 }
-

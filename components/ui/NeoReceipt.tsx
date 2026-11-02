@@ -37,13 +37,13 @@ export function NeoReceipt({
       .map(([k, v]) => `${k} = ${formatNumber(v, 4)}`)
       .join(", ");
     const receiptText = [
-      `=== STRUK KALKULASI ECONOBRUTAL ===`,
-      `Modul: ${title}`,
+      `=== CATATAN KALKULASI ECONOBRUTAL ===`,
+      `Topik: ${title}`,
       `Rumus: ${formula}`,
-      `Variabel: ${varsLine}`,
-      `Substitusi: ${substituted}`,
+      `Data: ${varsLine}`,
+      `Hitungan: ${substituted}`,
       `Hasil Akhir: ${resultFormatted}`,
-      `===================================`,
+      `=====================================`,
     ].join("\n");
 
     try {
@@ -70,60 +70,42 @@ export function NeoReceipt({
   };
 
   return (
-    <div className="bg-neo-surface border-3 border-neo-black shadow-neo p-4 font-mono space-y-3">
-      <div className="flex items-center justify-between border-b-2 border-dashed border-neo-black pb-2.5">
+    <div className="bg-neo-surface border-2 border-neo-black rounded-xl shadow-neo p-4 font-mono space-y-3">
+      <div className="flex items-center justify-between border-b-2 border-dashed border-neo-black/40 pb-2.5">
         <div className="flex items-center gap-2">
-          <Receipt className="w-5 h-5 stroke-[2.5]" />
-          <span className="font-bold text-sm uppercase">
-            STRUK SUBSTITUSI RUMUS
+          <Receipt className="w-4 h-4 stroke-[2.5]" />
+          <span className="font-bold text-xs uppercase">
+            RINGKASAN LANGKAH HITUNG
           </span>
         </div>
-        <span className="text-[11px] bg-neo-yellow border-2 border-neo-black px-2 py-0.5 font-bold">
-          STEP-BY-STEP
+        <span className="text-[10px] bg-neo-yellow border border-neo-black rounded px-2 py-0.5 font-bold">
+          TRANSPARAN
         </span>
       </div>
 
       <div className="space-y-2 text-xs">
         <div>
-          <p className="text-[10px] font-bold uppercase text-neo-black/60">
-            1. RUMUS PERSAMAAN:
+          <p className="text-[10px] font-bold uppercase text-neo-muted">
+            RUMUS YANG DIPAKAI:
           </p>
-          <p className="font-bold bg-neo-bg border-2 border-neo-black p-2 mt-0.5 break-all">
+          <p className="font-bold bg-neo-bg border border-neo-black rounded-lg p-2 mt-0.5 break-all">
             {formula}
           </p>
         </div>
 
-        {variableEntries.length > 0 && (
-          <div>
-            <p className="text-[10px] font-bold uppercase text-neo-black/60">
-              2. NILAI INPUT VARIABEL:
-            </p>
-            <div className="flex flex-wrap gap-1.5 mt-1">
-              {variableEntries.map(([key, val]) => (
-                <span
-                  key={key}
-                  className="bg-neo-lilac/40 border-2 border-neo-black px-2 py-0.5 font-bold"
-                >
-                  {key} = {formatNumber(val, 4)}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
         <div>
-          <p className="text-[10px] font-bold uppercase text-neo-black/60">
-            3. SUBSTITUSI LANGSUNG:
+          <p className="text-[10px] font-bold uppercase text-neo-muted">
+            PROSES MASUK ANGKA:
           </p>
-          <p className="font-bold bg-neo-bg border-2 border-neo-black p-2 mt-0.5 break-all">
+          <p className="font-bold bg-neo-bg border border-neo-black rounded-lg p-2 mt-0.5 break-all">
             {substituted}
           </p>
         </div>
       </div>
 
-      <div className="border-t-2 border-dashed border-neo-black pt-3 flex items-center justify-between bg-neo-mint/30 p-3 border-2">
-        <span className="text-xs font-bold uppercase">HASIL KALKULASI:</span>
-        <span className="text-lg font-bold tracking-tight break-all">
+      <div className="bg-neo-mint/60 border-2 border-neo-black rounded-lg p-3 flex items-center justify-between gap-2">
+        <span className="text-xs font-bold uppercase">HASIL AKHIR:</span>
+        <span className="text-base sm:text-lg font-bold tracking-tight break-all text-right">
           {resultFormatted}
         </span>
       </div>
@@ -133,12 +115,12 @@ export function NeoReceipt({
           {copied ? (
             <>
               <Check className="w-4 h-4" />
-              <span>Tersalin!</span>
+              <span>Tersalin</span>
             </>
           ) : (
             <>
               <Copy className="w-4 h-4" />
-              <span>Salin Struk</span>
+              <span>Salin Hasil</span>
             </>
           )}
         </NeoButton>
@@ -146,7 +128,7 @@ export function NeoReceipt({
           {saved ? (
             <>
               <Check className="w-4 h-4" />
-              <span>Tersimpan!</span>
+              <span>Tersimpan</span>
             </>
           ) : (
             <>
@@ -159,4 +141,3 @@ export function NeoReceipt({
     </div>
   );
 }
-
