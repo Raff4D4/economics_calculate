@@ -1,101 +1,240 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState, useEffect } from "react";
+import {
+  Wallet,
+  TrendingUp,
+  BookOpen,
+  TerminalSquare,
+  History,
+  Trash2,
+  X,
+  Calculator,
+} from "lucide-react";
+import { AppTab, CalculationHistoryItem } from "@/lib/types";
+import {
+  getSavedHistory,
+  saveHistoryItem,
+  clearSavedHistory,
+} from "@/lib/storage";
+import { LedgerModule } from "@/components/modules/LedgerModule";
+import { InvestModule } from "@/components/modules/InvestModule";
+import { PresetModule } from "@/components/modules/PresetModule";
+import { SandboxModule } from "@/components/modules/SandboxModule";
+import { NeoButton } from "@/components/ui/NeoButton";
+
+export default function HomePage() {
+  const [activeTab, setActiveTab] = useState<AppTab>("ledger");
+  const [history, setHistory] = useState<CalculationHistoryItem[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [sandboxBridge, setSandboxBridge] = useState<{
+    formula: string;
+    values: Record<string, number>;
+  }>({
+    formula: "M = i * (P - 1)",
+    values: { i: 0.12, P: 5000000 },
+  });
+
+  useEffect(() => {
+    setHistory(getSavedHistory());
+  }, []);
+
+  const handleSaveHistory = (
+    item: Omit<CalculationHistoryItem, "id" | "timestamp">
+  ) => {
+    const updated = saveHistoryItem(item);
+    setHistory(updated);
+  };
+
+  const handleClearHistory = () => {
+    clearSavedHistory();
+    setHistory([]);
+  };
+
+  const handleOpenInSandbox = (
+    formula: string,
+    values: Record<string, number>
+  ) => {
+    setSandboxBridge({ formula, values });
+    setActiveTab("sandbox");
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen max-w-md mx-auto bg-neo-bg border-x-3 border-neo-black shadow-neo-lg flex flex-col justify-between pb-24 relative">
+      <header className="sticky top-0 z-30 bg-neo-yellow border-b-3 border-neo-black px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-10 h-10 bg-neo-surface border-3 border-neo-black shadow-neo-sm flex items-center justify-center">
+            <Calculator className="w-5 h-5 stroke-[2.5]" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <h1 className="font-bold text-lg tracking-tight leading-none">
+                ECONOBRUTAL
+              </h1>
+              <span className="bg-neo-mint border-2 border-neo-black px-1.5 py-0.5 text-[10px] font-mono font-bold">
+                PRO
+              </span>
+            </div>
+            <p className="text-[11px] font-mono font-bold text-neo-black/80 mt-0.5">
+              OS Kalkulator Ekonomi & Rumus Dinamis
+            </p>
+          </div>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setShowHistory(true)}
+          className="min-h-[42px] bg-neo-surface border-3 border-neo-black px-3 py-1.5 shadow-neo-sm font-mono text-xs font-bold flex items-center gap-1.5 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+        >
+          <History className="w-4 h-4 stroke-[2.5]" />
+          <span>{history.length}</span>
+        </button>
+      </header>
+
+      <main className="p-4 flex-1">
+        {activeTab === "ledger" && (
+          <LedgerModule onSaveHistory={handleSaveHistory} />
+        )}
+        {activeTab === "invest" && (
+          <InvestModule onSaveHistory={handleSaveHistory} />
+        )}
+        {activeTab === "presets" && (
+          <PresetModule
+            onOpenInSandbox={handleOpenInSandbox}
+            onSaveHistory={handleSaveHistory}
+          />
+        )}
+        {activeTab === "sandbox" && (
+          <SandboxModule
+            initialFormula={sandboxBridge.formula}
+            initialValues={sandboxBridge.values}
+            onSaveHistory={handleSaveHistory}
+          />
+        )}
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+
+      {showHistory && (
+        <div className="fixed inset-0 z-50 bg-neo-black/60 flex items-end justify-center">
+          <div className="w-full max-w-md max-h-[82vh] bg-neo-bg border-t-3 border-x-3 border-neo-black p-4 flex flex-col space-y-3">
+            <div className="flex items-center justify-between border-b-3 border-neo-black pb-2.5">
+              <h2 className="font-bold text-base uppercase">
+                Riwayat Perhitungan ({history.length})
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowHistory(false)}
+                className="p-1.5 bg-neo-coral border-2 border-neo-black shadow-neo-sm"
+              >
+                <X className="w-4 h-4 stroke-[3]" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
+              {history.length === 0 ? (
+                <div className="bg-neo-surface border-2 border-neo-black p-6 text-center font-mono text-xs font-bold">
+                  Belum ada riwayat perhitungan yang disimpan.
+                </div>
+              ) : (
+                history.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-neo-surface border-2 border-neo-black p-3 shadow-neo-sm space-y-1 font-mono text-xs"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-neo-black uppercase">
+                        {item.title}
+                      </span>
+                      <span className="text-[10px] bg-neo-yellow border border-neo-black px-1.5 py-0.5 font-bold">
+                        {item.timestamp}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-neo-black/75 break-all">
+                      {item.substituted}
+                    </p>
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="font-bold text-sm bg-neo-mint border border-neo-black px-2 py-0.5">
+                        {item.resultFormatted}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSandboxBridge({
+                            formula: item.formula,
+                            values: item.variables,
+                          });
+                          setActiveTab("sandbox");
+                          setShowHistory(false);
+                        }}
+                        className="text-[11px] font-bold underline"
+                      >
+                        Buka di Sandbox
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {history.length > 0 && (
+              <NeoButton
+                variant="coral"
+                size="sm"
+                fullWidth
+                onClick={handleClearHistory}
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Hapus Semua Riwayat</span>
+              </NeoButton>
+            )}
+          </div>
+        </div>
+      )}
+
+      <nav className="fixed bottom-0 left-0 right-0 z-40 max-w-md mx-auto bg-neo-surface border-t-3 border-x-3 border-neo-black grid grid-cols-4">
+        <button
+          type="button"
+          onClick={() => setActiveTab("ledger")}
+          className={`min-h-[62px] flex flex-col items-center justify-center gap-1 border-r-2 border-neo-black font-bold text-[11px] transition-colors ${
+            activeTab === "ledger" ? "bg-neo-mint" : "bg-neo-surface"
+          }`}
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <Wallet className="w-5 h-5 stroke-[2.5]" />
+          <span>Margin Kas</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("invest")}
+          className={`min-h-[62px] flex flex-col items-center justify-center gap-1 border-r-2 border-neo-black font-bold text-[11px] transition-colors ${
+            activeTab === "invest" ? "bg-neo-yellow" : "bg-neo-surface"
+          }`}
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <TrendingUp className="w-5 h-5 stroke-[2.5]" />
+          <span>ROI & Bank</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("presets")}
+          className={`min-h-[62px] flex flex-col items-center justify-center gap-1 border-r-2 border-neo-black font-bold text-[11px] transition-colors ${
+            activeTab === "presets" ? "bg-neo-sky" : "bg-neo-surface"
+          }`}
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          <BookOpen className="w-5 h-5 stroke-[2.5]" />
+          <span>Makro Mikro</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("sandbox")}
+          className={`min-h-[62px] flex flex-col items-center justify-center gap-1 font-bold text-[11px] transition-colors ${
+            activeTab === "sandbox" ? "bg-neo-lilac" : "bg-neo-surface"
+          }`}
+        >
+          <TerminalSquare className="w-5 h-5 stroke-[2.5]" />
+          <span>Rumus Bebas</span>
+        </button>
+      </nav>
     </div>
   );
 }
