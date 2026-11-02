@@ -31,7 +31,13 @@ interface SandboxModuleProps {
   onSaveHistory: (item: Omit<CalculationHistoryItem, "id" | "timestamp">) => void;
 }
 
-const QUICK_FORMULAS = [
+interface QuickFormula {
+  label: string;
+  formula: string;
+  defaults: Record<string, number>;
+}
+
+const QUICK_FORMULAS: QuickFormula[] = [
   {
     label: "Contoh M = i * (P - 1)",
     formula: "M = i * (P - 1)",
@@ -158,7 +164,7 @@ export function SandboxModule({
                   type="button"
                   onClick={() => {
                     setFormulaInput(item.formula);
-                    setVariableValues(item.defaults);
+                    setVariableValues(item.defaults as Record<string, number>);
                     setScenarioA(null);
                   }}
                   className="bg-neo-bg border-2 border-neo-black px-2.5 py-1.5 text-xs font-mono font-bold shrink-0 shadow-neo-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
